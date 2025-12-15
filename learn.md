@@ -7,3 +7,6 @@
 - If something can move, it cannot contain references to itself
 - Library code -> generics -> compile time polymorphism
 - Application code -> trait objects -> run time polymorphism
+- Low-level code → std::io::Error
+- Mid-level code → parsing / validation
+- High-level code → app-specific meaning
