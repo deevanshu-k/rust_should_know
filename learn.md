@@ -5,5 +5,5 @@
 - Borrowing = temporary access card
 - Lifetime = expiration date on the card
 - If something can move, it cannot contain references to itself
-- Library code -> generics
-- Application code -> trait objects
+- Library code -> generics -> compile time polymorphism
+- Application code -> trait objects -> run time polymorphism
