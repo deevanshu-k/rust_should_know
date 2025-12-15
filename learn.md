@@ -1,0 +1,7 @@
+- literal
+- A reference can NEVER outlive the owner: Your lifetime 'a enforces this rule at compile time.
+- usize
+- Ownership = who holds the key
+- Borrowing = temporary access card
+- Lifetime = expiration date on the card
+- If something can move, it cannot contain references to itself
