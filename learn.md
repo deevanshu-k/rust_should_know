@@ -10,3 +10,11 @@
 - Low-level code → std::io::Error
 - Mid-level code → parsing / validation
 - High-level code → app-specific meaning
+- If it compiles, it cannot data-race.
+- Ordering in atomic operation
+    - SeqCst → safest, slowest
+    - Relaxed → fastest, but tricky
+    - Use SeqCst unless you fully understand memory ordering
+- Mutex → “One at a time”
+- RwLock → “Many readers or one writer”
+- Atomic → “CPU guarantees this operation is indivisible”
