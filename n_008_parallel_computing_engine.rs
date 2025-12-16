@@ -112,7 +112,7 @@ pub fn run() {
     {
         let pool = ThreadPool::new(4, 8);
 
-        for i in 1..100 {
+        for i in 1..101 {
             pool.execute(move || {
                 println!("Job {}", i);
             });
