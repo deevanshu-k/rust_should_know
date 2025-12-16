@@ -18,3 +18,9 @@
 - Mutex → “One at a time”
 - RwLock → “Many readers or one writer”
 - Atomic → “CPU guarantees this operation is indivisible”
+- Rust is safe because it forbids certain patterns.
+- Data races are UB, not “wrong output”.
+- unsafe: Compiler, step aside — I take responsibility
+- unsafe: I know more than the compiler — and I accept the cost.
+    - mutex, refCell, atomic, arc build using unsafecell and unsafe
+- Rust doesn’t prevent bugs, It prevents classes of bugs.
