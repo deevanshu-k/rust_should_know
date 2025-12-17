@@ -1,6 +1,9 @@
 use std::{
     collections::VecDeque,
-    sync::{Arc, Condvar, Mutex},
+    sync::{
+        Arc, Condvar, Mutex,
+        atomic::{AtomicBool, Ordering},
+    },
     thread::{self, JoinHandle},
 };
 
@@ -11,7 +14,7 @@ struct JobQueue {
     not_empty: Condvar,
     not_full: Condvar,
     capacity: usize,
-    shutdown: Mutex<bool>,
+    shutdown: AtomicBool,
 }
 
 impl JobQueue {
@@ -35,7 +38,7 @@ impl JobQueue {
                 return Some(job);
             }
 
-            if *self.shutdown.lock().unwrap() {
+            if self.shutdown.load(Ordering::SeqCst) {
                 return None;
             }
 
@@ -71,7 +74,7 @@ impl ThreadPool {
             not_empty: Condvar::new(),
             not_full: Condvar::new(),
             capacity,
-            shutdown: Mutex::new(false),
+            shutdown: AtomicBool::new(false),
         });
 
         let mut handlers = vec![];
@@ -96,7 +99,7 @@ impl ThreadPool {
 
 impl Drop for ThreadPool {
     fn drop(&mut self) {
-        *self.queue.shutdown.lock().unwrap() = true;
+        self.queue.shutdown.store(true, Ordering::SeqCst);
 
         self.queue.not_empty.notify_all();
 
