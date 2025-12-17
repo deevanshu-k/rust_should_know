@@ -24,3 +24,33 @@
 - unsafe: I know more than the compiler — and I accept the cost.
     - mutex, refCell, atomic, arc build using unsafecell and unsafe
 - Rust doesn’t prevent bugs, It prevents classes of bugs.
+- Relaxed Ordering:
+    - Atomicity, No torn writes, No ordering guarantees
+    - Reorder loads/stores
+    - Delay visibility to other threads
+    - Use case:
+        - Statistics
+        - Counters
+        - Metrics
+        - Non-synchronizing state
+- Release / Acquire Ordering = Visibility Contract
+    - Think of Release and Acquire as a handshake between threads.
+    - Everything I did before this line (Release) must be visible to anyone who acquires this atomic.
+        ```rust
+            // It is a publish point.
+            DATA.store(42, Ordering::Relaxed);
+            READY.store(true, Ordering::Release);
+        ```
+    - After I see this value, I promise to see everything the writer released.
+        ```rust
+            // It is a consume point.
+            while !READY.load(Ordering::Acquire) {}
+            println!("DATA = {}", DATA.load(Ordering::Relaxed));
+        ```
+        ```
+        Writer thread                   Reader thread
+        --------------                 --------------
+        DATA = 42         \
+        READY.store(Release)  ----->   READY.load(Acquire)
+                                       DATA.load()  ✅ must see 42
+        ```
