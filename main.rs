@@ -8,6 +8,7 @@ mod n_007_create_real_race_condition;
 mod n_008_parallel_computing_engine;
 mod n_009_lock_free_counter_and_queue;
 mod n_010_lock_free_mpsc_queue;
+mod n_011_async_runtime_mini_tokio;
 
 fn main() {
     // n_001_reference_and_ownership::run();
@@ -19,5 +20,6 @@ fn main() {
     // n_007_create_real_race_condition::run();
     // n_008_parallel_computing_engine::run();
     // n_009_lock_free_counter_and_queue::run();
-    n_010_lock_free_mpsc_queue::run();
+    // n_010_lock_free_mpsc_queue::run();
+    n_011_async_runtime_mini_tokio::run();
 }

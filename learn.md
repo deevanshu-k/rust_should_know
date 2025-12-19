@@ -54,3 +54,8 @@
         READY.store(Release)  ----->   READY.load(Acquire)
                                        DATA.load()  ✅ must see 42
         ```
+- Async Rust
+    - Future -> Something that may finish later
+    - Executor -> Loop that runs futures
+    - Poll -> ask "are you ready?"
+    - Waker -> "wake me when ready"
