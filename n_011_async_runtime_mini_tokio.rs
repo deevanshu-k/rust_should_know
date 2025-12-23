@@ -1,13 +1,14 @@
 use std::{
     collections::VecDeque,
     pin::Pin,
+    sync::{Arc, Mutex},
     task::{Context, Poll, RawWaker, RawWakerVTable, Waker},
 };
 
 // Pin → cannot move in memory
 // Futures must not move after polling → that’s why Pin.
 struct Task {
-    future: Pin<Box<dyn Future<Output = ()>>>,
+    future: Pin<Box<dyn Future<Output = ()> + Send>>,
 }
 
 fn dummy_waker() -> Waker {
@@ -28,46 +29,53 @@ fn dummy_waker() -> Waker {
 }
 
 struct Executor {
-    queue: VecDeque<Task>,
+    queue: Arc<Mutex<VecDeque<Arc<Mutex<Task>>>>>,
 }
 
 impl Executor {
-    fn spawn(&mut self, future: impl Future<Output = ()> + 'static) {
+    fn spawn(&mut self, future: impl Future<Output = ()> + 'static + Send) {
         let task = Task {
             future: Box::pin(future),
         };
-        self.queue.push_back(task);
+        self.queue
+            .lock()
+            .unwrap()
+            .push_back(Arc::new(Mutex::new(task)));
     }
 
     fn run(&mut self) {
-        while let Some(mut task) = self.queue.pop_front() {
+        while let Some(task) = self.queue.lock().unwrap().pop_front() {
             let waker = dummy_waker();
             let mut cx = Context::from_waker(&waker);
 
-            match task.future.as_mut().poll(&mut cx) {
+            let mut task_lock = task.lock().unwrap();
+
+            match task_lock.future.as_mut().poll(&mut cx) {
                 Poll::Ready(()) => {
                     // task finished, drop it
                     println!("Poll ready!");
                 }
                 Poll::Pending => {
-                    self.queue.push_back(task);
+                    self.queue.lock().unwrap().push_back(task.clone());
                 }
             }
         }
     }
 }
 
-async fn hello() {
-    println!("Hello async world");
+async fn hello(n: i8) {
+    println!("{}> Async function", n);
 }
 
 pub fn run() {
     println!("Async runtine mini tokio");
 
     let mut ex = Executor {
-        queue: VecDeque::new(),
+        queue: Arc::new(Mutex::new(VecDeque::new())),
     };
-    ex.spawn(hello());
+    for i in 0..10 {
+        ex.spawn(hello(i));
+    }
     ex.run();
 
     println!("________________________");
